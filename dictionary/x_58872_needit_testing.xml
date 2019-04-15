@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element label="testing" max_length="40" name="x_58872_needit_testing" type="collection">
+        <element display="true" label="default" max_length="50" name="default" type="string"/>
+        <element label="game" max_length="40" name="game" type="boolean"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" default="op" label="New Choice" max_length="40" name="u_choice_2" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Open" sequence="0" value="op"/>
+                <element inactive_on_update="false" label="Again" sequence="1" value="ag"/>
+                <element inactive_on_update="false" label="Resolved" sequence="2" value="re"/>
+            </choice>
+        </element>
+        <element label="New Integer" max_length="40" name="u_integer_3" type="integer"/>
+    </element>
+</database>
