@@ -1,0 +1,16 @@
+function onLoad() {
+    //Type appropriate comment here, and begin script below
+
+    var inc = g_form.getValue('number');
+    var parinc = g_form.getReference('parent_incident', ca);
+
+    function ca(parinc) {
+        var pr = g_form.getValue('parent_incident');
+        if (pr != '') {
+          //g_form.addInfoMessage("Current "+inc+" incident is a child of " + "<a href=\'https://dev94032.service-now.com/nav_to.do?uri=incident.do?sys_id=" +parinc.sys_id+ '\'>' + parinc.number+ '</a>'); open parent in same tab
+
+			g_form.addInfoMessage("Current "+inc+" incident is a child of " + "<a href='https://dev94032.service-now.com/nav_to.do?uri=incident.do?sys_id=" +parinc.sys_id+ '\' target=\'_blank\' >' + parinc.number+ '</a>'); // open parent in other tab
+			// <a href>  </a> is a hyperlink of html
+           }
+        }
+    }
