@@ -1,0 +1,11 @@
+
+var note = current.work_notes.getJournalEntry(1);
+var gr= new GlideRecord('problem');
+gr.addQuery('sys_id',current.problem);
+gr.query();
+if(gr.next())
+	{
+		gr.work_notes= "this work note is upload by " +current.number+ '\n' +note+'';
+		//gr.work_notes= ;
+		gr.update();
+	}
