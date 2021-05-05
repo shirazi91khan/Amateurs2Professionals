@@ -1,0 +1,13 @@
+(function executeRule(current, previous /*null when async*/) {
+
+	var gr = new GlideRecord('problem');
+	gr.initialize();
+	gr.assignment_group = current.assignment_group;
+    gr.assigned_to = current.assigned_to;
+    gr.short_description = current.short_description;
+	gr.u_incident_field = current.number;
+	gr.insert();
+	current.problem_id = gr.sys_id;
+	current.update();
+	
+})(current, previous);
