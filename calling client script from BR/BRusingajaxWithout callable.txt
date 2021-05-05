@@ -1,0 +1,10 @@
+(function executeRule(current, previous /*null when async*/) {
+
+	// Add your code here
+	gs.addInfoMessage("the empty");
+	/*var f= new withoutclient();
+	var g= f.withoutcallable(current.caller_id);*/ //it is working 
+	var g= new withoutclient().withoutcallable(current.caller_id);
+    gs.addInfoMessage(g);	
+
+})(current, previous);
