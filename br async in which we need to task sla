@@ -1,0 +1,13 @@
+(function executeRule(current, previous /*null when async*/) {
+
+	var gr=new GlideRecord('task_sla');
+	gr.addQuery('task', current.sys_id);
+	gr.query();
+	while(gr.next())
+		{
+			gr.u_testgroup=current.assignment_group+'';
+		    gr.update();
+			//current.update() current is the objective for in incident and gr is object for task_sla table and related list is for task_sla table, in which we want to update a value gr.update is correct way
+		}
+	
+})(current, previous);
