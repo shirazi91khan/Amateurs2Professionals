@@ -1,0 +1,5 @@
+gs.addInfoMessage("it is of Changes UI again");
+//current.contact_type = "email"; working
+current.setValue('contact_type',"email");
+current.update();
+action.setRedirectURL(current);
