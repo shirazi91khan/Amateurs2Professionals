@@ -1,0 +1,20 @@
+Rest message
+endpoint : https://dev62297.service-now.com/api/now/table/incident
+method : get
+
+business rule
+
+(function executeRule(current, previous /*null when async*/ ) {
+
+    var r = new sn_ws.RESTMessageV2('between dev62297 and dev9403', 'Get by script');
+//r.setQueryParameter('sysparm_query', 'sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()');
+r.setQueryParameter('sysparm_query', 'sys_created_onONThis week@javascript:gs.beginningOfThisWeek()@javascript:gs.endOfThisWeek()');
+    r.setQueryParameter("sysparm_limit", 8);
+	r.setQueryParameter("sysparm_fields","number , short_description  , caller_id");
+	var responsed = r.execute();
+    var responseBody = responsed.getBody();
+    gs.log(" responseBody " + responseBody);
+// 	var responsegetBody = responsed.getBody(bod);
+// 	gs.log(" responsegetBody " + responsegetBody);
+
+})(current, previous);

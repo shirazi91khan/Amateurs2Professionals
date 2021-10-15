@@ -1,0 +1,34 @@
+Rest message
+endpoint : https://dev62297.service-now.com/api/now/table/incident
+method : post
+
+{
+"caller_id":"${call}",
+"short_description":"${short}",
+"contact_type":"${contact}"
+}
+
+
+business rules
+
+(function executeRule(current, previous /*null when async*/ ) {
+
+    
+    var r = new sn_ws.RESTMessageV2('between dev62297 and dev9403', 'between two instance');
+    r.setStringParameter("call", current.caller_id); // working
+    r.setStringParameterNoEscape("short", current.short_description);
+    r.setStringParameterNoEscape("contact", current.contact_type);
+	var responsed = r.execute();
+    var requestbody = r.getRequestBody();
+    var responsebody = responsed.getBody();
+    var https = responsed.getStatusCode();
+    gs.log("responsebody " + responsebody);
+
+    var parsedata = JSON.parse(responsebody);
+    var a = parsedata.result.number;
+    gs.log("the incident which is create at dev62297 is " + a);
+	
+	gs.log("requestbody " +requestbody);
+
+
+})(current, previous);
