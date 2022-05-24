@@ -1,0 +1,19 @@
+create a ref qualifer in assignment group by 
+javascript: new popassignmentgroup().getassignmentgrp()
+
+then create script include 
+getassignmentgrp: function() {
+
+        var gp = [];
+        var a = current.assigned_to;
+
+        //sys_user_grmember has the user to group relationship
+        var grp = new GlideRecord('sys_user_grmember');
+        grp.addQuery('user', a);
+        grp.query();
+        while (grp.next()) {
+            gp.push(grp.group.sys_id);
+        }
+        // return Groups where assigned to is in those groups we use IN for lists
+        return 'sys_idIN' + gp;
+    },
