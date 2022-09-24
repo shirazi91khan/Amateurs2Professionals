@@ -1,0 +1,4 @@
+var popdev =GlideMobileExtensions.getDeviceType();
+	current.description = popdev+'';
+  
+  we can get type how inc is been logged
