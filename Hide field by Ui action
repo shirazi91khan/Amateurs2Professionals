@@ -1,8 +1,7 @@
-also need to mention the action name with same name of onclick name
-need to mention toggle() in onclick in ui action after checking client
+need to mention any name  of abc function() in onclick in ui action after checking client
 
 
-function toggle() {
+function abc() {
 //     var priElement = g_form.getGlideUIElement('description');
 //     var priControl = g_form.getControl('description');
     if (g_form.isVisible(priElement,priControl) {
@@ -11,3 +10,5 @@ function toggle() {
         g_form.setDisplay('description', true);
     }
 }
+
+before i have create with toggle(), then need to mention in action name same function, I believe we have toggle function in js
