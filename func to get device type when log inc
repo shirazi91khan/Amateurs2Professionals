@@ -1,0 +1,4 @@
+var popdev =GlideMobileExtensions.getDeviceType();
+current.description = popdev+'';
+
+used in before Br as try to make in work in after does not, so  will check and update 
