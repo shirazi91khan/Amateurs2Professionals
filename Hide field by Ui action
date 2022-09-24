@@ -1,4 +1,6 @@
+also ned to mention the action name 
 need to mention toggle() in onclick in ui action after checking client
+
 
 function toggle() {
 //     var priElement = g_form.getGlideUIElement('description');
