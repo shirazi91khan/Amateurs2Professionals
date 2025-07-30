@@ -1,3 +1,5 @@
+in schedule job
+
 var ob = {
     tday: [],
     yday: []
@@ -128,3 +130,21 @@ if (co) {
 } else {
     gs.info("No canceled AWS discovery records found for the last two days. No email sent.");
 }
+
+in email script 
+(function runMailScript( /* GlideRecord */ current, /* TemplatePrinter */ template,
+        /* Optional EmailOutbound */
+        email, /* Optional GlideRecord */ email_action,
+        /* Optional GlideRecord */
+        event) {
+        var attid = event.parm1;
+        var grAttachment = new GlideRecord('sys_attachment');
+        grAttachment.addQuery('sys_id', attid);
+        grAttachment.query();
+        var url = gs.getProperty('glide.servlet.uri') + grAttachment.getTableName() + ".do?sys_id=" + attid;
+
+        if (grAttachment.next()) {
+            template.print("This is an urgent notification regarding multiple consecutive AWS discovery failures. <br/><br/>");
+            template.print("Please find the detailed report attached and click on PDF to download it " + '<a href=' + url + ' > ' + grAttachment.file_name + '</a> ' + "</b>.<br/><br/>");
+            }
+        })(current, template, email, email_action, event);
