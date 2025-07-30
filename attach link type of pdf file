@@ -1,0 +1,130 @@
+var ob = {
+    tday: [],
+    yday: []
+};
+var co = 0;
+var grDis_sche = new GlideRecord("discovery_schedule"); //on discovery schedule to get AWS discovery active
+grDis_sche.addActiveQuery();
+grDis_sche.addEncodedQuery('nameLIKEAWS');
+//grDis_sche.setLimit();
+grDis_sche.query();
+var count = grDis_sche.getRowCount() + '';
+gs.info("row count " + count);
+while (grDis_sche.next()) {
+    var grtdaystatus = new GlideRecord("discovery_status"); // for Discovery status of today record
+    grtdaystatus.addEncodedQuery('sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()');
+    grtdaystatus.addQuery('dscheduler', grDis_sche.sys_id);
+    grtdaystatus.addQuery('state', 'Canceled');
+    grtdaystatus.query();
+
+    var grydaystatus = new GlideRecord("discovery_status");
+    grydaystatus.addEncodedQuery('sys_created_onONYesterday@javascript:gs.beginningOfYesterday()@javascript:gs.endOfYesterday()');
+    grydaystatus.addQuery('dscheduler', grDis_sche.sys_id);
+    grydaystatus.addQuery('state', 'Canceled');
+    grydaystatus.query();
+
+    if (grtdaystatus.next() && grydaystatus.next()) {
+        ob.tday.push({});
+        var tdy = new GlideDateTime(grtdaystatus.sys_created_on); // received in date and time
+        var tdaydate = tdy.getDate(); // get only date
+
+        ob.tday[co].disc = grDis_sche.name + "";
+        //ob.tday[co].create = grtdaystatus.sys_created_on + '';
+        ob.tday[co].create = tdaydate + '';
+        ob.tday[co].sys_id = grtdaystatus.sys_id + '';
+        ob.tday[co].num = grtdaystatus.number + '';
+        ob.tday[co].state = grtdaystatus.state + '';
+
+        ob.yday.push({});
+        var ydt = new GlideDateTime(grydaystatus.sys_created_on); // received in date and time
+        var ydaydate = ydt.getDate(); // get only date
+
+        ob.yday[co].disc = grDis_sche.name + "";
+        //ob.yday[co].create = grydaystatus.sys_created_on + '';
+        ob.yday[co].create = ydaydate + '';
+        ob.yday[co].sys_id = grydaystatus.sys_id + '';
+        ob.yday[co].num = grydaystatus.number + '';
+        ob.yday[co].state = grydaystatus.state + '';
+
+        gs.info("\nName of Discovery is " + grDis_sche.name);
+        gs.info("Today number  " + grtdaystatus.number);
+        gs.info("Yesterday number  " + grydaystatus.number);
+        co++;
+    }
+}
+
+var obString = JSON.stringify(ob);
+gs.info("get value of object  " + obString);
+if (co) {
+    var htmlContent = '';
+    htmlContent += '<html><head><title>AWS Discovery Status Report</title>';
+    htmlContent += '<style>';
+    htmlContent += 'table { width: 100%; border-collapse: collapse; }';
+    htmlContent += 'th, td { border: 1px solid black; padding: 8px; text-align: left; }';
+    htmlContent += 'th { background-color: #f2f2f2; }';
+    htmlContent += '</style>';
+    htmlContent += '</head><body>';
+    htmlContent += '<h1>AWS Discovery Status Report - Canceled Discoveries</h1>';
+    htmlContent += '<p>This report details multiple consecutive AWS discovery failures that have occurred over the past two days.</p>';
+
+    // Parse the JSON string back to an object for HTML generation
+    var parsedOb = JSON.parse(obString);
+    var link = gs.getProperty('glide.servlet.uri')+"discovery_status.do?sys_id=";
+    var base = "/discovery_status.do?sys_id=";
+    if (parsedOb.tday.length > 0) {
+        gs.info("\n Am I here");
+        htmlContent += '<table>';
+        htmlContent += '<thead><tr><th>Discovery Name</th><th>Created On (Today)</th><th>Status Number (Today)</th><th>State (Today)</th><th>Created On (Yesterday)</th><th>Status Number (Yesterday)</th><th>State (Yesterday)</th></tr></thead>';
+        htmlContent += '<tbody>';
+        for (var i = 0; i < parsedOb.tday.length; i++) {
+            htmlContent += '<tr>';
+            htmlContent += '<td>' + parsedOb.tday[i].disc + '</td>';
+            htmlContent += '<td>' + parsedOb.tday[i].create + '</td>';
+            //htmlContent += '<td><a href="'+link + parsedOb.tday[i].sys_id + '">' + parsedOb.tday[i].num + '</a></td>';
+			htmlContent += '<td><a href="' + link + parsedOb.tday[i].sys_id + '" target="_blank">' + parsedOb.tday[i].num + '</a></td>';
+            htmlContent += '<td>' + parsedOb.tday[i].state + '</td>';
+            htmlContent += '<td>' + parsedOb.yday[i].create + '</td>';
+            //htmlContent += '<td><a href="'+link + parsedOb.yday[i].sys_id +'">' + parsedOb.yday[i].num + '</a></td>';
+			htmlContent += '<td><a href="' + link + parsedOb.yday[i].sys_id + '" target="_blank">' + parsedOb.yday[i].num + '</a></td>';
+            htmlContent += '<td>' + parsedOb.yday[i].state + '</td>';
+            htmlContent += '</tr>';
+        }
+        htmlContent += '</tbody>';
+        htmlContent += '</table>';
+    }
+    htmlContent += '</body></html>';
+    // 1. Create a dummy sys_email record to attach the PDF to
+    var grDummyEmail = new GlideRecord('sys_email');
+    grDummyEmail.initialize();
+    grDummyEmail.subject = 'Temporary PDF Attachment Holder - DO NOT SEND';
+    grDummyEmail.body = 'This is a temporary email record used to hold an attachment. It should be deleted after the process.';
+    grDummyEmail.type = 'sent'; // Mark as sent to prevent it from sitting in outbox, though it won't have recipients
+    grDummyEmail.auto_created = true; // Flag it as auto-created for potential cleanup
+    var dummyEmailSysId = grDummyEmail.insert();
+    gs.info("Dummy sys_email record created with sys_id: " + dummyEmailSysId);
+
+    var pdfAPI = new sn_pdfgeneratorutils.PDFGenerationAPI();
+    var pdfName = "AWS Discovery Canceled Report " + gs.beginningOfToday().split(' ')[0];
+    // Call convertToPDF with the HTML string and the dummy sys_email record's details
+    var pdfResult = pdfAPI.convertToPDF(htmlContent, 'sys_email', dummyEmailSysId, pdfName);
+    gs.info("PDF Conversion Result Object: " + JSON.stringify(pdfResult));
+    var attachmentSysId = null; // Initialize to null
+    attachmentSysId = pdfResult.attachment_id; // This is the property that holds the attachment sys_id
+    gs.info("PDF attachment generated with sys_id: " + attachmentSysId);
+    // Pass the attachmentSysId (which is now linked to dummyEmailSysId) to the event
+    gs.eventQueue('AWS.discovery.cancelsfor.2days.with.pdf', current, attachmentSysId, null);
+
+    // Optional: Delete the dummy sys_email record, The attachment will persist in sys_attachment as its own record,good for keeping sys_email table clean
+    
+    // if (dummyEmailSysId) {
+    //     var grDeleteDummy = new GlideRecord('sys_email');
+    //     if (grDeleteDummy.get(dummyEmailSysId)) {
+    //         grDeleteDummy.deleteRecord();
+    //         gs.info("Deleted dummy sys_email record: " + dummyEmailSysId);
+    //     }
+    // }
+    // *** REVISED CHANGES END HERE ***
+
+} else {
+    gs.info("No canceled AWS discovery records found for the last two days. No email sent.");
+}
