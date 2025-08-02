@@ -131,7 +131,7 @@ if (co) {
     gs.info("No canceled AWS discovery records found for the last two days. No email sent.");
 }
 
-in email script 
+in email script for pdf attachment via email 
 (function runMailScript( /* GlideRecord */ current, /* TemplatePrinter */ template,
         /* Optional EmailOutbound */
         email, /* Optional GlideRecord */ email_action,
@@ -148,3 +148,47 @@ in email script
             template.print("Please find the detailed report attached and click on PDF to download it " + '<a href=' + url + ' > ' + grAttachment.file_name + '</a> ' + "</b>.<br/><br/>");
             }
         })(current, template, email, email_action, event);
+
+in before business rule to attach the attachment create in dump to actually email
+
+var gr = new GlideRecord("sys_email");
+    gr.addEncodedQuery('subject=Temporary PDF Attachment Holder - DO NOT SEND');
+    gr.orderByDesc('sys_created_on');
+    gr.query();
+    if (gr.next()) {
+        var dummyemailsysid = gr.sys_id;
+        gs.info("BR dummyemailsysid = " + dummyemailsysid + " correct email pdf = " + current.sys_id);
+    }
+    if (dummyemailsysid) {
+        var grAtt = new GlideRecord('sys_attachment');
+        grAtt.addQuery('table_name', 'sys_email');
+        grAtt.addQuery('table_sys_id', dummyemailsysid);
+        grAtt.query();
+        if (grAtt.next()) {
+            var attsid = grAtt.sys_id;
+            gs.info("attachment sys_id is =" + attsid);
+            var content = new GlideSysAttachment().getContentStream(attsid);
+            // new GlideSysAttachment().writeContentStream(current, grAtt.getValue('file_name'), grAtt.getValue('content_type'), content); // it is also work
+
+            var newAttachmentSysId = new GlideSysAttachment().writeContentStream(current, grAtt.getValue('file_name'), grAtt.getValue('content_type'), content);
+            // You can now use the newAttachmentSysId variable if you need it
+            gs.info("BR after adding att in current email");
+            gs.info("BR Shirazi The sys_id of the new attachment on the email is :" + newAttachmentSysId); // get sys_id of new attachment
+        }
+    } else {
+        gs.error("No dummy email is been created with attachment");
+    }
+    var url = gs.getProperty('glide.servlet.uri') + grAtt.getTableName() + ".do?sys_id=" + newAttachmentSysId;
+    //var c = "Click to download -";
+    // var d = '<a href=' + url + ' > ' + grAtt.file_name + '</a> ';
+    //current.body.setValue(a +"</b><br/><br/> "+b+"</b><br/><br/>"+c+" "+d); working
+
+    var a = "Hi Team,</b><br/><br/> This is to inform you that AWS Discovery schedules have been failed for two consecutive days. Please look into the issue, Find the detailed information in the below attachment.</b><br/><br/>Click to download -" + '<a href=' + url + ' > ' + grAtt.file_name + '</a>' + " (Sample report)</b><br/><br/>Regards,</b><br/> ServiceNow";
+    current.body.setValue(a);
+
+	gr.query();
+	gr.deleteMultiple();
+	//gr.deleteRecord();
+    gs.info("Deleted dummy sys_email record: " + dummyemailsysid);
+
+})(current, previous);
