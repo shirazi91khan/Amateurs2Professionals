@@ -1,0 +1,51 @@
+// Use a Fix Script or a Background Script
+var duplicateCIs = [];
+var ga = new GlideAggregate('alm_hardware');
+// 1. Filter: serial_number is not empty
+ga.addQuery('serial_number', '!=', '');
+// 2. Group: Group results by serial_number
+ga.addAggregate('COUNT', 'serial_number');
+// 3. Execute the query
+ga.query();
+// 4. Iterate through the results
+while (ga.next()) {
+    var serialNumber = ga.serial_number;
+    var count = ga.getAggregate('COUNT', 'serial_number');
+    // 5. Check for duplicates (count > 1)
+    if (parseInt(count) > 1) {
+        gs.print(serialNumber + ' | ' + count);
+        duplicateCIs.push(serialNumber + ''); // Store the serial number
+    }
+}
+gs.print('Total unique duplicate serial numbers found: ' + duplicateCIs.length);
+// gs.print('Total unique duplicate serial numbers found: ' + JSON.stringify(duplicateCIs)); // output in arr format ["002682314657","004580421557","017465521657"]
+
+gs.print('Total unique duplicate serial numbers found: ' + duplicateCIs.length);
+// gs.print('Total unique duplicate serial numbers found: ' + JSON.stringify(duplicateCIs+'')); // output in arr format "002682314657","004580421557","017465521657"
+
+gs.print('Total unique duplicate serial numbers found: ' + duplicateCIs+''); // output in string without array format 002682314657,004580421557
+
+gs.print('Total unique duplicate serial numbers found: ' + duplicateCIs); //output in without array format or string format  002682314657,004580421557
+
+
+// 2. Iterate through the duplicate serial numbers and list the actual CIs to get other field value
+for (var i = 0; i < duplicateCIs.length; i++) {
+    var currentSerial = duplicateCIs[i];
+
+    // Query for all CIs matching the current serial number
+    var gr = new GlideRecord('cmdb_ci');
+    gr.addQuery('serial_number', currentSerial);
+    gr.orderBy('name'); // Order by name for easier reading
+    gr.query();
+
+    gs.print('\n*** DUPLICATE SERIAL NUMBER: ' + currentSerial + ' (Count: ' + gr.getRowCount() + ') ***');
+    
+    while (gr.next()) {
+        gs.print(
+            '   CI Name: ' + gr.name + 
+            ' | Class: ' + gr.getDisplayValue('sys_class_name') +
+            ' | Sys ID: ' + gr.sys_id
+        );
+    }
+    gs.print('----------------------------------------------------');
+}
