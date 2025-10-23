@@ -1,0 +1,42 @@
+to add asstag only after this EJWIN10 
+first letter should be 1 
+should having only 6 digit which should be numberic only and should not contain aplhabet
+
+var ciGR = new GlideRecord("cmdb_ci_computer");
+ciGR.addEncodedQuery('nameSTARTSWITHEJWIN10^asset_tagISEMPTY');
+ciGR.query()
+var a = ciGR.getRowCount();
+gs.info("the total count is " + a);
+var y=0;
+while (ciGR.next()) {
+    var name = ciGR.name.trim();
+    var prefix = "EJWIN10".length; // or just mention as value7
+    name = name.substring(prefix); // means get all remain value from index 7
+    // gs.info("the name is after prefix " + name);
+    var regex = /[a-zA-Z]/;
+    var match = regex.test(name); //check if contain any aplhabet then return true
+    if (!match && name.charAt(0) === '1' && name.length == 6) {
+        ciGR.asset_tag = name;
+        ciGR.update();
+		y++;
+    }
+}
+gs.info( " total number of record were asstag is been updated "+y);
+
+
+below one is also working use less line 
+
+// Regex pattern explanation:
+// ^(EJWIN10)   -> Matches "EJWIN10" at the start.
+// (1\d{5})    -> Matches '1' followed by EXACTLY 5 more digits. Total length = 6.
+// $            -> Matches the end of the string, ensuring nothing else follows.
+//this is alos working and very short script 
+// var subname = ciGR.name.trim().toUpperCase();
+// var result = "";
+// var regex = /^(EJWIN10)(1\d{5})$/; //in this(1\d{5}) where 1 tocheck aft EJWIN10 next letter is 1 & "\d{5}" means \d mean number after 1 every 5 digit is number , if it is correct return true;
+// var match = regex.exec(subname);
+// if (match) {
+//     result = match[2]; // as (1\d{5}) is match[2];
+//     gs.info("Validation Passed. Extracted 6 digits: " + result);
+//     // Output for "EJWIN10123456": Extracted 6 digits: 123456
+// }
