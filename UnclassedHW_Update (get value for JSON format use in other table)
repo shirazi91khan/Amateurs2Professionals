@@ -1,0 +1,70 @@
+var di = new GlideRecord('sn_sec_cmn_src_ci');
+di.addEncodedQuery('state=unmatched^cmdb_ci.sys_class_name=cmdb_ci_unclassed_hardware^source_dataLIKEserial_number^cmdb_ci.serial_numberISEMPTY'); // encodequery filter
+di.query();
+while (di.next()) {
+    var diName = di.getDisplayValue('cmdb_ci');
+    var jsonString = di.getValue('source_data'); // the get the value even it is in JSON
+    var serialNumber = 'N/A'; // Default value if not found
+    gs.info("the number is " + di.number);
+    gs.info("the number is " + diName);
+    gs.info("the sys_id of ci is " + di.cmdb_ci.sys_id); //or use di.getValue('cmdb_ci'); to get sys_id 
+    var sourceDataObj = JSON.parse(jsonString);
+    gs.info(" the serial number of data sources " + sourceDataObj.SERIAL_NUMBER);
+	var i=0;
+    if (sourceDataObj && sourceDataObj.SERIAL_NUMBER) {
+        try {
+            gs.info("inside try");
+            gs.info(" the serial number of data sources " + sourceDataObj.OS);
+            var uhw = new GlideRecord("cmdb_ci_unclassed_hardware");
+            // uhw.addQuery("sys_id", di.cmdb_ci.sys_id);
+            // uhw.query();
+            if (uhw.get(di.cmdb_ci.sys_id)) {
+                gs.info(" the ci name is " + uhw.name);
+                uhw.serial_number = sourceDataObj.SERIAL_NUMBER;
+                uhw.short_description = sourceDataObj.OS;
+                uhw.autoSysFields(false);
+				uhw.update();
+				i++;
+            }
+        } catch (e) {
+            serialNumber = 'ERROR: Failed to parse JSON.';
+            gs.print('Error parsing JSON for DI: ' + diName + '. Error: ' + e.message);
+        }
+    }
+}
+gs.info('count is shirazi :' +i);
+
+
+
+// script create by Cameron same as mine , but try to shorten it
+// var di = new GlideRecord('sn_sec_cmn_src_ci');
+// di.addEncodedQuery('state=unmatched^cmdb_ci.sys_class_name=cmdb_ci_unclassed_hardware^source_dataLIKEserial_number^cmdb_ci.serial_numberISEMPTY');
+// di.setLimit(10);
+// di.query();
+// gs.info(gr.getRowCount());
+// while (di.next()) {
+//     var diName = di.getDisplayValue('cmdb_ci');
+//     var jsonString = di.getValue('source_data');
+//     var serialNumber = 'N/A'; // Default value if not found
+
+//     if (jsonString) {
+//         try {
+//             var sourceDataObj = JSON.parse(jsonString);
+//             if (sourceDataObj && sourceDataObj.SERIAL_NUMBER) {
+//                 var uhw = new GlideRecord(cmdb_ci_unclassed_hardware);
+//                 uhw.query(sys_id = '+ di.ci.sys_id');
+//                 while (uhw.next()) {
+//                     uhw.serial_number = sourceDataObj.SERIAL_NUMBER;
+//                     uhw.short_description = sourceDataObj.OS;
+//                 }
+//             }
+//         } catch (e) {
+//             serialNumber = 'ERROR: Failed to parse JSON.';
+//             gs.print('Error parsing JSON for DI: ' + diName + '. Error: ' + e.message);
+//         }
+//     } else {
+//         serialNumber = 'N/A (source_data field is empty)';
+//     }
+//     gs.print('DI Name: ' + diName + ' | Serial Number: ' + serialNumber);
+
+// }
