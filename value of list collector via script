@@ -1,0 +1,10 @@
+var gr = new GlideRecord("cmdb_hardware_product_model");
+if (gr.get('sys_id', "83e6f4911b531e102cd9dce7b04bcb8f")) {
+    gs.info("this record is " + gr.cmdb_model_category.getDisplayValue());
+    var tar = gr.cmdb_model_category.getDisplayValue().split(',');
+    if (tar.includes("Mobile Device")) {
+        gs.info(" yes it does");
+    } else {
+        gs.info("no it won't");
+    }
+}
