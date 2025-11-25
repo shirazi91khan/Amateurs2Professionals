@@ -1,3 +1,5 @@
+to find any value in list collector
+
 var gr = new GlideRecord("cmdb_hardware_product_model");
 if (gr.get('sys_id', "83e6f4911b531e102cd9dce7b04bcb8f")) {
     gs.info("this record is " + gr.cmdb_model_category.getDisplayValue());
@@ -8,3 +10,44 @@ if (gr.get('sys_id', "83e6f4911b531e102cd9dce7b04bcb8f")) {
         gs.info("no it won't");
     }
 }
+
+to add ny new value 
+var gr = new GlideRecord("cmdb_hardware_product_model");
+if (gr.get('sys_id', "83e6f4911b531e102cd9dce7b04bcb8f")) {
+
+//var old = gr.cmdb_model_category.string() or gr.cmdb_model_category.string().split(',') it is also but having issue if the field 
+does not have value then it will not as expect
+
+
+var old = gr.cmdb_model_category.string(); to reason convert to string if field is empty it will not thrown a null or nor
+var oldval = old.split(',');  
+
+var newval = '81feb9c137101000deeabfc8bcbe5dc4';
+var updateval = newval + "," + oldval;
+gr.cmdb_model_category = updateval;
+gr.update();
+}
+
+or use by convert to array and use push, join if require include method
+
+var gr = new GlideRecord("cmdb_hardware_product_model");
+if (gr.get('sys_id', "83e6f4911b531e102cd9dce7b04bcb8f")) {
+    var sysid = "81feb9c137101000deeabfc8bcbe5dc4";
+    var currentString = gr.cmdb_model_category.toString();
+    // 1. Convert to array
+    var existvalue = currentString.split(',');
+
+   // 2. Clean the array if the field was empty (e.g., converts [''] to [])
+    if (existvalue.length === 1 && existvalue[0] === '') {
+        existvalue = []; 
+    }
+    // 3. Check for duplicates and add the new sys_id
+    if (!existvalue.includes(sysid)) {
+    existvalue.push(sysid); 
+    var up = existvalue.join(',');     
+        gs.info("Adding new sys_id to List Collector. New value: " + up);
+        gr.setValue('cmdb_model_category', up);
+        gr.update();
+        gs.info("Update complete. Record " + gr.sys_id + " modified.");
+      } 
+    }
