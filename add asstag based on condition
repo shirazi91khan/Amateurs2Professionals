@@ -40,3 +40,8 @@ below one is also working use less line
 //     gs.info("Validation Passed. Extracted 6 digits: " + result);
 //     // Output for "EJWIN10123456": Extracted 6 digits: 123456
 // }
+
+or use this 
+var regex = /^(EJWIN10)(1\d{5})$/i;
+With /i  Matches EJWIN10, ejwin10, EjWiN10 , there is no need to conert in uppercase or lower case 
+Without /i EJWIN10	Only matches the exact string EJWIN10. thatwhy you need to turn to lowercase
