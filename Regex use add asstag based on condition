@@ -45,3 +45,29 @@ or use this
 var regex = /^(EJWIN10)(1\d{5})$/i;
 With /i  Matches EJWIN10, ejwin10, EjWiN10 , there is no need to conert in uppercase or lower case 
 Without /i EJWIN10	Only matches the exact string EJWIN10. thatwhy you need to turn to lowercase
+
+
+or use this to remove apple
+var name = "Apple iPad Pro, 11-inch (3rd generation) Cellular"
+
+var name = "Apple iPad Pro, 11-inch (3rd generation) Cellular";
+var newName = name.replace("Apple ", "");
+Result: "iPad Pro, 11-inch (3rd generation) Cellular"
+
+var newName = name.replace(/apple/i, "");
+With /i  Matches apple, AppLe, aPPle , there is no need to conert in uppercase or lower case but need trim to remove space
+
+var newName = name.replace(/apple/i, "");
+With /i  Matches apple, AppLe, aPPle , there is no need to conert in uppercase or lower case but need trim to remove space
+
+var newName = name.replace(/apple\s+/i, "");
+With /i  Matches apple, AppLe, aPPle , there is no need to conert in uppercase or lower case remove the space from 
+double between word not from first and last like trim does
+
+var newName = name.replace(/apple\s+/ig, "");
+with /g Replaces every instance of "Apple" found in the text, not just the first one. 
+
+// Result: "iPad Pro, 11-inch (3rd generation) Cellular 
+
+
+
