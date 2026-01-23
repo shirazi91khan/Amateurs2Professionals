@@ -1,0 +1,114 @@
+In JSON. array
+ 
+var tdaycount = 0;
+var ydaycount = 0;
+var ar = 0;
+var tday = {
+    arr: [{},{}]
+};
+var yday = {};
+var gr = new GlideRecord("sys_import_set");
+gr.addEncodedQuery('sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()^ORsys_created_onONYesterday@javascript:gs.beginningOfYesterday()@javascript:gs.endOfYesterday()'); // Checking for today's data
+gr.addQuery('data_source', '59d993927721101077b22344681061c2'); // intune Device schedule
+gr.query();
+while (gr.next()) {
+    var grmap = new GlideRecord("sys_import_set_run");
+    grmap.addQuery("set", gr.sys_id);
+    grmap.query();
+    if (grmap.next()) {
+        //if (grmap.state == 'cancelled' || grmap.state == 'incomplete') {
+            tday.arr[ar].sysid = gr.sys_id + '';
+            tday.arr[ar].create = gr.sys_created_on + '';
+            tday.arr[ar].datasour = gr.getDisplayValue('data_source');
+            tday.arr[ar].num = gr.number + '';
+            tday.arr[ar].state = grmap.state + '';
+            gs.info("get number " + grmap.number + " and Import " + gr.number);
+        //}
+        ar++;
+    }
+}
+var tday = new JSON().encode(tday);
+gs.info("get value of object  " + tday);
+gs.eventQueue('intune.cancelsfor.2days', current, tday);
+ 
+ 
+email script 
+ var str = event.parm1;
+    var par = new JSON();
+    var tday = par.decode(str);
+    // template.print("First group: " + tday.num + "\n");
+    // var jsonSt = event.parm2;
+    // var yday = JSON.parse(jsonSt);
+    // template.print("second group: " + yday.num + "\n");
+ 
+    //var sub = tday.datasour + ' Discovery Failed for two days.';
+    var sub = tday.arr[0].datasour + ' Discovery Failed for two days.';
+    email.setSubject(sub);
+    var ur = "/sys_import_set.do?sys_id=";
+    template.print("Day-1 \n");
+    var i = 0;
+    for (i = 0; i < tday.arr.length; i++) {
+        var url = "/sys_import_set.do?sys_id=" + tday.arr[i].sysid;
+        template.print("\n Created on- " + tday.arr[i].create + " \n 2. Import set number- " + '<a href=' + url + ' > ' + tday.arr[i].num + '</a> ' + " \n 3. Transform map state- " + tday.arr[i].state + "\n");
+ 
+        // template.print("\n Created on- " + tday.arr[i].create + " \n 2. Import set number- " + '<a href=' + ur + tday.arr[i].sysid + ' > ' + tday.arr[i].num + '</a> ' + " \n 3. Transform map state- " + tday.arr[i].state + "\n");
+ 
+    }
+
+
+
+
+IN JSON only without array
+
+var count = 0;
+var tday = {};
+var yday = {};
+var gr = new GlideRecord("sys_import_set");
+gr.addEncodedQuery('sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()'); //checking data for today
+//gr.addQuery('data_source', '59d993927721101077b22344681061c2'); // intune Device schedule
+//gr.addQuery('data_source', '79c398657714201039252344681061e0'); // intune computer schedule
+gr.addQuery('data_source', '4f74428377a1101077b2234468106167'); // intune software schedule
+gr.query();
+if (gr.next()) {
+    var grmap = new GlideRecord("sys_import_set_run");
+    grmap.addQuery("set", gr.sys_id);
+    grmap.query();
+    if (grmap.next()) {
+        if (grmap.state == 'cancelled' || grmap.state == 'incomplete') {
+            count++;
+            tday.sysid = gr.sys_id+'';
+            tday.create = gr.sys_created_on+'';
+            tday.datasour = gr.getDisplayValue('data_source');
+            tday.num = gr.number + '';
+            tday.state = grmap.state + '';
+            var tday = new JSON().encode(tday);
+            gs.info("get number shirazi " + grmap.number + " and Import " + gr.number);
+            //gs.log("get number rashi " + grmap.number + " and Import " + gr.number);
+        }
+    }
+}
+gr.initialize();
+gr.addEncodedQuery('sys_created_onONYesterday@javascript:gs.beginningOfYesterday()@javascript:gs.endOfYesterday()'); //checking data for yesterday
+//gr.addQuery('data_source', '59d993927721101077b22344681061c2'); // intune Device schedule
+//gr.addQuery('data_source', '79c398657714201039252344681061e0'); // intune computer schedule
+gr.addQuery('data_source', '4f74428377a1101077b2234468106167'); // intune software schedule
+gr.query();
+if (gr.next()) {
+    var grmap = new GlideRecord("sys_import_set_run");
+    grmap.addQuery("set", gr.sys_id);
+    grmap.query();
+    if (grmap.next()) {
+        if (grmap.state == 'cancelled' || grmap.state == 'incomplete') {
+            count++;
+            yday.sysid = gr.sys_id+'';
+            yday.create = gr.sys_created_on+'';
+            yday.num = gr.number + '';
+            yday.state = grmap.state + '';
+            var yday = JSON.stringify(yday);
+            gs.info("get number " + grmap.number + " and Import " + gr.number);
+        }
+    }
+}
+if (count == 2) {
+    gs.eventQueue('intune.cancelsfor.2days', current, tday, yday);
+}
