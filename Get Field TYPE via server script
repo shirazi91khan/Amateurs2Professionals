@@ -1,0 +1,8 @@
+to get field type in via server side script
+
+var glideElement = current.getElement(fieldName); // 'current' is a GlideRecord object, fieldName is a string
+if (glideElement) {
+    var descriptor = glideElement.getED();
+    var internalType = descriptor.getInternalType();
+    gs.info("The internal type of field " + fieldName + " is: " + internalType);
+}
