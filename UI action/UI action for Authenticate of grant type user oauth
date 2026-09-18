@@ -1,0 +1,41 @@
+form Ui action on form for Oauth user grant type authentication to redirect to web browser
+function authenticateTeams() {
+    // Replace these with your actual OAuth Credential sys_id and Provider Profile sys_id
+    var credSysId = 'b278fc7afb4b0fd01028fee7aeefdc49';
+    var profileSysId = 'f678bc7afb4b0fd01028fee7aeefdca6';
+
+    if (!credSysId || !profileSysId) {
+        g_form.addErrorMessage("Missing required OAuth configuration to initiate connection.");
+        return;
+    }
+    
+	// Root-relative path prevents incorrect workspace routing
+    var authUrl = 'oauth_initiator.do?oauth_requestor_context=oauth_2_0_credentials&oauth_requestor=' + credSysId + '&oauth_provider_profile=' + profileSysId + '&response_type=code';
+    
+    g_navigation.openPopup(authUrl);
+	  g_form.addInfoMessage("Get Oauth link");
+
+    //g_form.addInfoMessage('Get Oauth link <a href="' + authUrl + '" target="_blank">here</a>');
+    //action.setRedirectURL(authUrl);
+    //window.open(authUrl, '_blank');
+    //window.open(authUrl, '', 'height=500,width=800'); // pops up windon
+	//window.location.href = authUrl;
+//return;	
+}
+
+Workspace UI action for Oauth user grant type authentication to redirect to web browser
+function onClick(g_form) {
+    var credentialSysId = 'b278fc7afb4b0fd01028fee7aeefdc49';
+    var profileSysId = 'f678bc7afb4b0fd01028fee7aeefdca6';
+
+    var authUrl = '/oauth_initiator.do?oauth_requestor_context=oauth_2_0_credentials&oauth_requestor=' + credentialSysId + '&oauth_provider_profile=' + profileSysId + '&response_type=code';
+	
+	//g_form.addInfoMessage('Get Oauth link <a href="' + authUrl + '" target="_blank">here</a>');
+  open(authUrl); // working
+	//top.window.open(authUrl); // working
+	//g_serviceDesk.openUrl(authUrl);
+	//g_aw.navigateToUrl(authUrl);
+    //Use workspace-compatible navigation popup
+    //g_navigation.openPopup(authUrl);
+	// g_navigation.open(authUrl, "_blank");
+}
