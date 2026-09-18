@@ -11,9 +11,10 @@ function authenticateTeams() {
     
 	// Root-relative path prevents incorrect workspace routing
     var authUrl = 'oauth_initiator.do?oauth_requestor_context=oauth_2_0_credentials&oauth_requestor=' + credSysId + '&oauth_provider_profile=' + profileSysId + '&response_type=code';
-    
-    g_navigation.open(authUrl);
-    //g_navigation.openPopup(authUrl);// working	
+
+    g_navigation.openPopup(authUrl);// working
+   // g_navigation.open(authUrl); // working will not redirect to current page
+    	
 	  g_form.addInfoMessage("Get Oauth link");
 
     //g_form.addInfoMessage('Get Oauth link <a href="' + authUrl + '" target="_blank">here</a>');
