@@ -34,7 +34,8 @@ function onClick(g_form) {
 	
 	//g_form.addInfoMessage('Get Oauth link <a href="' + authUrl + '" target="_blank">here</a>');
   open(authUrl); // working
-	//top.window.open(authUrl); // working
+	//top.window.open(authUrl); // working but once authenticated not return to current window
+    //top.window.open(authUrl, 'TeamsAuthPopup', 'width=800,height=600,scrollbars=yes,resizable=yes');// working and return to current 
 	//g_serviceDesk.openUrl(authUrl);
 	//g_aw.navigateToUrl(authUrl);
     //Use workspace-compatible navigation popup
