@@ -1,0 +1,24 @@
+var withoutclient = Class.create();
+withoutclient.prototype = {
+    initialize: function() {},
+    	withoutcallable: function(a){
+    	var gr= new GlideRecord('sys_user');
+    	gr.addQuery('sys_id',a);
+    	gr.query();
+    	if(gr.next())
+    		{
+    	//gs.addInfoMessage("this is W/O" +gr.email+'');
+    	return gr.email+"";
+    	} 
+    	},
+
+//     acl: function(a) {
+//         if (gs.getUser().isMemberOf(a) == true) {
+//             return true;
+//         } else {
+//             return false;
+//         }
+//     },
+
+    type: 'withoutclient'
+};
