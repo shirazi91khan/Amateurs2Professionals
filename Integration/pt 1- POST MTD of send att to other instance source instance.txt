@@ -1,0 +1,50 @@
+rest message
+end point : https://dev62297.service-now.com/api/now/table/u_media_table
+method : POST
+content:
+{
+"u_caller_id":"${call}",
+"u_short_description":"${short}",
+"u_attachname":"${filename}",
+"u_attachment_type":"${contenttype}",
+"u_attachments":"${attach}"
+}
+
+business rule 
+
+(function executeRule(current, previous /*null when async*/ ) {
+
+    var attacht;
+    var sa;
+    var content;
+    var att = new GlideRecord("sys_attachment");
+    att.addQuery("table_name", current.getTableName());
+    att.addQuery("table_sys_id", current.sys_id);
+    att.query();
+    if (att.next()) {
+        sa = new GlideSysAttachmentInputStream(att.sys_id.toString());
+        content = new Packages.java.io.ByteArrayOutputStream();
+        sa.writeTo(content, 0,0);
+        content.close();
+        attacht = GlideStringUtil.base64Encode(content.toByteArray()); //encoded attached file 
+    }
+
+    var r = new sn_ws.RESTMessageV2('between dev62297 and dev9403', 'send attachment between two instance');
+    r.setStringParameter("call", current.caller_id); // working
+    r.setStringParameterNoEscape("short", current.short_description);
+    r.setStringParameterNoEscape("filename", att.file_name);
+    r.setStringParameterNoEscape("contenttype", att.content_type);
+    r.setStringParameterNoEscape("attach", attacht);
+    var responsed = r.execute();
+    var requestbody = r.getRequestBody();
+    var responsebody = responsed.getBody();
+    var https = responsed.getStatusCode();
+    gs.log("responsebody " + responsebody);
+    var parsedata = JSON.parse(responsebody);
+//     var a = parsedata.result.number;
+//     gs.log("the incident which is create at dev62297 is " + a);
+//     gs.log("requestbody " + requestbody); will not get any number reason cause we are send to transform maps table 
+//	which send to target table as we have done mapping  
+
+
+})(current, previous);

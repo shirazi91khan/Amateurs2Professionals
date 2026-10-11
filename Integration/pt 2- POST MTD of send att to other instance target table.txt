@@ -1,0 +1,25 @@
+decoding of attachment file in target instance (in which we want to send attactment)
+
+System web services 
+inbound action,
+in source table create 3 field string type in same target table,
+(decoded field string should be 4000 lenght)
+mapping them 
+in transform script write an script 
+under when onafter
+
+(function runTransformScript(source, map, log, target /*undefined onStart*/ ) {
+
+		if(gs.nil(source.u_attachments)){
+		ignore = true;
+	}else{
+		
+		var gr = new GlideRecord("incident");
+		gr.get(target.sys_id);		
+		var stringUtil = new GlideStringUtil();
+		var attach = new Attachment();
+		attach.write(target.getTableName(), gr.sys_id, source.u_attachname, '',stringUtil.base64DecodeAsBytes(source.u_attachments));
+	}
+
+
+})(source, map, log, target);
