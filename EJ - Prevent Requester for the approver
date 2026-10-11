@@ -1,0 +1,11 @@
+table sysapproval
+
+var a = current.requested_by;
+    var gr = new GlideRecord("sysapproval_approver");
+    gr.addQuery('document_id', current.sys_id);
+    gr.addQuery('approver', a);
+    gr.query();
+    while (gr.next()) {
+        gr.setValue('state', 'not_required');
+        gr.update();
+    }

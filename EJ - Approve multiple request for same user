@@ -1,0 +1,26 @@
+in br is async
+table is sysapproval
+
+state is approved
+source table is change 
+
+
+var a = current.approver;
+    var gr = new GlideRecord("sysapproval_approver");
+    gr.addQuery('document_id', current.document_id);
+    gr.addQuery('approver', a);
+    gr.addQuery('state', 'requested');
+    gr.query();
+    while (gr.next()) {
+        var ga = new GlideRecord("sysapproval_group");
+        ga.addQuery("parent", gr.sysapproval);
+        ga.addEncodedQuery('approval=requested')
+        ga.query();
+        while (ga.next()) {
+            if (ga.assignment_group == "b85d44954a3623120004689b2d5dd60a") {
+                gr.setAbortAction(true);
+            }
+        }
+        gr.setValue('state', 'approved');
+        gr.update();
+    }

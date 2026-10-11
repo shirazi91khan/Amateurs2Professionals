@@ -1,0 +1,38 @@
+//SetTimeout is client side to delay function execution as per given time to eexcutes 
+intervalID = setInterval(function, delay, arg1, arg2, ...);
+
+// working with this syntax as well
+    var loop = setTimeout(() => {
+        var status = g_form.getValue('state');
+        if (status == '6') {
+			clearTimeout(loop);// it is not real required as it just delay to execution as per condition mention in the function
+			g_form.showFieldMsg('assigned_to', 'Please assign this new ticket.', 'info');
+            //g_form.addInfoMessage('Ticket is resolved. Monitoring stopped.');
+        } else {
+            g_form.addInfoMessage('Checking ticket status...');
+        }
+    }, 3000);
+
+    // working with this syntax as well
+    var loop = setTimeout(function() {
+    	var status = g_form.getValue('state');
+        if (status == '6') {
+            clearTimeout(loop);
+            g_form.addInfoMessage('Ticket is resolved. Monitoring stopped.');
+        } else {
+            g_form.addInfoMessage('Checking ticket status...');
+        }
+    }, 3000);
+
+    // working with this syntax as well 
+    var statusInterval = setTimeout(checkStatus, 3000);
+    function checkStatus() {
+        var status = g_form.getValue('state');
+        // If the state changes to 'Closed', stop the interval
+        if (status == '6') {
+            clearTimeout(statusInterval);
+            g_form.addInfoMessage('Ticket is resolved. Monitoring stopped by ');
+        } else {
+            g_form.addInfoMessage('Checking ticket status... popup');
+        }
+    }

@@ -1,0 +1,44 @@
+(function executeRule(current, previous /*null when async*/ ) {
+
+    //var assigned_to = current.assigned_to;
+    //var assignment_group = current.assignment_group;
+
+    if (current.assignment_group != '') {
+        var grp = new GlideRecord('sys_user_grmember');
+        grp.addQuery('group.sys_id', current.assignment_group);
+        grp.query();
+        //if(grp.hasNext()){ is not working
+        while (grp.next()) {
+            var a = '';
+            if (!(current.assigned_to == grp.user || current.caller_id == grp.user + '')) {
+                a = grp.user.getDisplayValue();
+                gs.addInfoMessage(a);
+            } else {
+                //gs.addInfoMessage(" In assign to or caller_id" );
+            }
+            //while (grp.next()) {
+            // gs.addInfoMessage(grp.user); // will get sys_id 
+            // gs.addInfoMessage(grp.user.getDisplayValue()); // working
+
+            //	----------------------------Also Working------------------------------
+
+            //             var gr = new GlideRecord("sys_user");
+            //             gr.addQuery("sys_id", grp.user);
+            //             gr.query();
+            //             var a = '';
+            // 			var b =current.assigned_to;
+            //             if(gr.next()) {
+            //                 if(!(b == gr.sys_id+'' || current.caller_id == gr.sys_id+'')) {
+            //                 a =gr.name;
+            //                 gs.addInfoMessage(a);
+            // 				//gs.addInfoMessage(gr.name);
+            //                 }
+            // 				else{
+            // 				//gs.addInfoMessage(gr.name);
+            // 				}
+            //            } 
+            // -----------------------------------------------------------------------------
+        }
+    }
+
+})(current, previous);

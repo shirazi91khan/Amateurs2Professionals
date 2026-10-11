@@ -1,0 +1,10 @@
+var a = ["cdc9e70697a04ad0403a720f2153afb8", 'c903d88e1b81d910ef74a860f54bcbca', '5e287e361bb25590ef74a860f54bcb43'];
+var classes = '';
+for (var i in a) {
+gs.info("the value is " +a[i]);
+}
+
+var e = ["cdc9e70697a04ad0403a720f2153afb8", 'c903d88e1b81d910ef74a860f54bcbca'];
+e.forEach(function(item) {
+        gs.info("the value is " +item);
+    });  or you can also put , instead of;

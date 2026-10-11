@@ -1,0 +1,28 @@
+function onSubmit() {
+    //Type appropriate comment here, and begin script below
+    if (g_scratchpad.action) {
+        return true;
+    }
+
+    var gn = new GlideModal('glide_prompt', true, 600);
+    gn.setTitle("Confirming");
+    gn.setPreference('title', "please enter to proceed");
+    gn.setPreference('onPromptComplete', complete);
+    gn.setPreference('onPromptCancel', cancel);
+    gn.render();
+
+    function complete(value) {
+        var msg = "Hey you have enter wrong value: " + value;
+        if (value == 'sure') {
+            g_scratchpad.action = true;
+            var msg = "you have enter *sure*, record will be updated";
+            gsftSubmit(null, g_form.getFormElement(), g_form.getActionName());
+        }
+        alert(msg);
+    }
+
+    function cancel(value) {
+        alert("you have cancelled the process");
+    }
+    return false;
+}

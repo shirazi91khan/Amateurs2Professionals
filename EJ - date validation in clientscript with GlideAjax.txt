@@ -1,0 +1,18 @@
+function onChange(control, oldValue, newValue, isLoading) {
+    if (isLoading || newValue == '') {
+        return;
+    }
+    if (g_form.getValue('u_start_date') == "") {
+        g_form.clearValue('u_end_date');
+        g_form.showFieldMsg('u_end_date', "Please select a Start date first", 'error');
+    }
+    var startDate = g_form.getValue('u_start_date');
+    var dueDate = g_form.getValue('u_end_date');
+    var startDateNum = getDateFromFormat(startDate, g_user_date_format); // change to g_user_date_time_format if field type is date/time
+    var dueDateNum = getDateFromFormat(dueDate, g_user_date_format); // change to g_user_date_time_format if field type is date/time
+    if (dueDateNum < startDateNum) {
+        g_form.clearValue('u_end_date');
+        g_form.showFieldMsg('u_end_date', "The end date must be equal to or greater than the start date.       Please select another date.", 'error');
+
+    }
+}

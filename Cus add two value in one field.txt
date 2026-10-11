@@ -1,0 +1,11 @@
+Br display combine value on sys_user table
+
+(function executeRule(current, previous /*null when async*/) {
+
+	
+	//current.setValue('u_test',current.name+" "+current.email); working
+	current.u_test= current.name+" ("+current.email+")"; //working
+	//current.name= current.u_test;
+
+})(current, previous);
+

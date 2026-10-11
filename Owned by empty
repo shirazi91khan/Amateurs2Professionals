@@ -1,0 +1,32 @@
+in scheduled job 
+
+var ob = {
+    arr1: [],
+    arr2: []
+};
+var gr = new GlideAggregate("cmdb_ci");
+gr.addEncodedQuery('sys_class_name=cmdb_ci_computer^ORsys_class_name=cmdb_ci_handheld_computing^owned_byISEMPTY^operational_status=1');
+gr.query();
+co = 0;
+var a = gr.getRowCount();
+ob.arr1.push({});
+ob.arr1[co].totalcount = a.toString();
+gr.groupBy('sys_class_name');
+gr.addAggregate('COUNT', 'sys_class_name');
+gr.query();
+var url = "https://ejservicenowdev.service-now.com/cmdb_ci_list.do?sysparm_query=sys_class_name%3Dcmdb_ci_computer%5EORsys_class_name%3Dcmdb_ci_handheld_computing%5Eowned_byISEMPTY%5Eoperational_status%3D1&sysparm_view=";
+ob.arr1[co].links = url;
+while (gr.next()) {
+    ob.arr2.push({});
+    ob.arr2[co].classname = gr.sys_class_name.getDisplayValue() + "(" + gr.sys_class_name + '' + ")";
+    ob.arr2[co].count = gr.getAggregate('COUNT', 'sys_class_name');;
+    gs.info("get count " + gr.sys_class_name + '');
+    gs.info("count is " + gr.getAggregate('COUNT', 'sys_class_name'));
+    co++;
+}
+var ob = new JSON().encode(ob); // or you can also make json.stringify
+gs.info("object is" + ob);
+
+if(co > 0 ){
+gs.eventQueue('ownedby.empty.forclass', current, ob);
+}

@@ -1,0 +1,37 @@
+var ciGR = new GlideRecord("cmdb_ci_netgear");
+ciGR.addEncodedQuery("commentsLIKERITM^discovery_source!=SG-SolarWinds^short_descriptionNOT LIKERITM");
+var ritmRegex = /(RITM\d+)/;
+var ritmcontain = /(RITM)/;
+ciGR.query();
+while (ciGR.next()) {
+    gs.info("sys_id is " + ciGR.sys_id);
+    var adtGR = new GlideRecord("sys_audit");
+    adtGR.addEncodedQuery("tablename=cmdb_ci_netgear^fieldname=comments^newvalueLIKERITM^ORoldvalueLIKERITM");
+    adtGR.addQuery('documentkey', ciGR.sys_id);
+    adtGR.query();
+    if (adtGR.next()) {
+        var newtext = adtGR.getValue('newvalue');
+        var oldtext = adtGR.getValue('oldvalue');
+        gs.info("the value contain RITM 1" + ritmcontain.test(newtext));// check does it contain RITM and return true if it contain 
+        gs.info("the value contain RITM 2" + ritmcontain.test(oldtext));
+        var newextract = newtext.match(ritmRegex); // get value of RITM with number
+        var oldextract = oldtext.match(ritmRegex);
+        if (ritmcontain.test(newtext)) {
+            //ciGR.short_description.includes(newextract[0] .include will check if already contain RITMnumber in short decription and return true
+            if (!ciGR.short_description.includes(newextract[0])) {//
+                ciGR.short_description = ciGR.short_description + "\n\n RITM: " + newextract[0].trim();
+                ciGR.setWorkflow(false);
+                ciGR.autoSysFields(false);
+                ciGR.update();
+                gs.info("inside the includes " + ciGR.short_description.includes(newextract[0]));
+                gs.info("the newtext of 1 " + newextract[0].trim());
+            } else {
+                gs.info("it does includes " + ciGR.short_description + '');
+            }
+        } else {
+            gs.info("the oldtext of 2 " + oldextract[0].trim());
+        }
+    } else {
+        gs.info(" nothing is been found");
+    }
+}

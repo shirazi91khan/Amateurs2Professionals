@@ -1,0 +1,48 @@
+(function executeRule(current, previous /*null when async*/) {
+
+//  gs.addInfoMessage("the email of caller_id is " + current.caller_id.email); when to run was before annd action is insert or uppdate
+	
+// 	var g= new GlideRecord('sys_user');
+// 	g.addQuery('sys_id', current.caller_id);
+// 	g.query();
+// 	if(g.next())
+// 		{
+// 		gs.addErrorMessage("the email is " +g.email);
+// 		}
+//g_scratchpad.loc= current.caller_id.department.getDisplayValue(); 
+// 	gs.addInfoMessage(gs.getUser());
+// 	gs.log("This is test of logs");
+//	gs.info("this is test of info"); need to check in system log
+// 	gs.warn("this is test" +gs.getUserID());
+//  var updatedTime = current.sys_updated_on;
+// 	gs.addInfoMessage(updatedTime);
+// 	gs.log("this");
+// 	gs.print("this is test of print");
+
+// 	var gr = new GlideRecord('cmdb_ci');
+//     gr.addQuery('sys_id', current.cmdb_ci);
+//     gr.query();
+//     if (gr.next()) {
+//    gs.addInfoMessage(current.cmdb_ci);
+// 	if(gr.support_group == "")
+// 		{
+// 			gs.addErrorMessage("no assignment group");
+// 			current.assignment_group = "d625dccec0a8016700a222a0f7900d06";
+		
+// 			}
+// 		else
+// 			{
+// 				current.assignment_group = gr.support_group;
+// 			}
+// }
+	
+	
+	//var b= gs.getUser().isMemberOf(current.assignment_group);
+	if(gs.getUser.isMemberOf("Database") == true)
+	{
+			gs.addInfoMessage("they are not");
+			//gs.addInfoMessage(b);
+		}
+
+
+})(current, previous);

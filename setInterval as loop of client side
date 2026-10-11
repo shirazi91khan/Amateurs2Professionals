@@ -1,0 +1,36 @@
+SetInterval is client side loop, where run after every given time  
+intervalID = setInterval(function, delay, arg1, arg2, ...);
+// working with syntax as well
+var loop = setInterval(() => {
+        var status = g_form.getValue('state');
+        if (status == '6') {
+            clearInterval(loop);// if stop the loop
+            g_form.addInfoMessage('Ticket is resolved. Monitoring stopped.');
+        } else {
+            g_form.addInfoMessage('Checking ticket status...');
+        }
+    }, 3000);// mean will run after 3 again 
+
+    //working with syntax as well
+    var loop = setInterval(function() {
+    	var status = g_form.getValue('state');
+        if (status == '6') {
+            clearInterval(loop);
+            g_form.addInfoMessage('Ticket is resolved. Monitoring stopped.');
+        } else {
+            g_form.addInfoMessage('Checking ticket status...');
+        }
+    }, 3000);
+
+    // working with syntax as well
+    var statusInterval = setInterval(checkStatus, 3000);
+    function checkStatus() {
+        var status = g_form.getValue('state');
+        // If the state changes to 'Closed', stop the interval
+        if (status == '6') {
+            clearInterval(statusInterval);
+            g_form.addInfoMessage('Ticket is resolved. Monitoring stopped.');
+        } else {
+            g_form.addInfoMessage('Checking ticket status...');
+        }
+    }

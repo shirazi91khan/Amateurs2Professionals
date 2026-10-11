@@ -1,0 +1,14 @@
+need to mention any name  of abc function() in onclick in ui action after checking client
+
+
+function abc() {
+//     var priElement = g_form.getGlideUIElement('description');
+//     var priControl = g_form.getControl('description');
+    if (g_form.isVisible(priElement,priControl) {
+        g_form.setDisplay('description', false);
+    } else { 
+        g_form.setDisplay('description', true);
+    }
+}
+
+before i have create with toggle(), then need to mention in action name same function, I believe we have toggle function in js

@@ -1,0 +1,30 @@
+//answer = new KBWorkflow().getApprovers(current); 
+answer = []; 
+var memb =[]; 
+var gr = new GlideRecord('sys_user_grmember'); gr.addQuery('group','=','580e772a83f729d86c129870ceaad309'); 
+gr.query(); 
+while(gr.next()) 
+{ 
+memb.push(gr.user.toString()); 
+} 
+var a=current.author; 
+var c = []; 
+c=memb; 
+var d = []; 
+d.push(a);
+var count = 0; 
+var value = [];
+for (var i=0;i<c.length;i++) 
+{ 
+if(d[0] == c[i]) 
+{ 
+delete c[i]; count++; 
+} 
+} 
+for (i=0; i<c.length;i++) 
+{ if (c[i]!= undefined) 
+{ 
+value.push(c[i]); 
+} 
+} 
+answer.push(value);

@@ -1,0 +1,6 @@
+// for ref field we have to use DOM manupalation and also need to uncheck isolate script otherwise it won't run
+var ref = $('sys_display.' + g_form.getControl("caller_id").id);
+ref.style.background ='limegreen';
+	
+var str = g_form.getControl("description"); //we don't need DOM manupalation for non referencde field
+str.style.background ='red';

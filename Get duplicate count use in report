@@ -1,0 +1,32 @@
+to get duplicate record by serial number and use in report filter by get table name mention in reports
+check the Sandbox enabled in script include or Client callable if needed
+
+getserialnumber: function(reportsysid, field) {
+        var table;
+        var grReport = new GlideRecord('sys_report');
+        //gr.addQuery("sys_id",reportsysid );
+        if (grReport.get(reportsysid)) {
+            table = grReport.getValue('table');
+        }
+
+        var dupRecords = [];
+        var gaDupCheck = new GlideAggregate(table);
+        gaDupCheck.addAggregate('COUNT', field);
+        gaDupCheck.addNotNullQuery(field);
+        gaDupCheck.groupBy(field);
+        gaDupCheck.addHaving('COUNT', '>', 1);
+        gaDupCheck.query();
+        while (gaDupCheck.next()) {
+            //dupRecords.push(gaDupCheck[field].toString());
+            dupRecords.push(gaDupCheck.getValue(field));
+        }
+        return dupRecords;
+    },
+
+
+use this line in report filter 
+javascript: new getduplicate_ci().getserialnumber('sys_id of report ','serial_number');
+where getduplicate_ci() script include name and getserialnumber is function in which it is return the duplicate serial 
+
+
+
