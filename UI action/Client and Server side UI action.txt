@@ -1,0 +1,38 @@
+function problem() {
+    g_form.setValue("impact", 1);
+    g_form.setValue("urgency", 1);
+    gsftSubmit(null, g_form.getFormElement(), 'p1_problem');// action name
+}
+if (typeof window == 'undefined')
+    createproblem();
+
+function createproblem() {
+    if (gs.nil(current.problem_id)) {
+        var gr = new GlideRecord("problem");
+        gr.initialiize();
+        gr.short_description = current.short_description;
+        gr.description = current.description;
+        gr.u_incident_field = current.number;
+        current.problem_id = gr.insert();
+        gs.addInfoMessage(gs.getMessage("problem ticket {0} created", current.problem_id.getDisplayValue()));
+        gs.addInfoMessage(gs.getMessage("Problem {0} created", gr.number)); // working
+        current.update();
+        action.setRedirectURL(current);
+    } else {
+        //  gs.addInfoMessage(gs.getMessage("problem ticket is already {0} created for this " + current.getValue('number') +"", current.getDisplayValue('problem_id')));  // working
+        gs.addInfoMessage(gs.getMessage("problem ticket is already {0} created for this " + current.getValue('number') + "", current.problem_id.getDisplayValue())); // working
+        action.setRedirectURL(current);
+    }
+}
+
+
+                            // second part 
+// this second part is a test to call other UI action from Ui action
+// 
+// in this we have to enter the other action name, 
+// like test is action name form Change UI and Again UI  both are server side 
+// Can not call the client side UI action
+// function problem() {
+//  gsftSubmit(null, g_form.getFormElement(), 'test');// action name
+// 	action.setRedirectURL(current); // to stay on same page
+// 	}

@@ -1,0 +1,11 @@
+function client() {
+//     g_form.clearValue("description"); working without as well
+//     g_form.clearOptions("category");
+    g_form.setValue("description", "UI Action test on button"); // also working with clear value
+    alert("it is of Changes UI action");
+    g_form.setValue("category", "hardware");
+}
+
+// this is script side, for which we have to uncheck the client box
+// gs.addInfoMessage("it is of Changes UI action");
+// action.setRedirectURL(current);

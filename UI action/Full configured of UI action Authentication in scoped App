@@ -1,0 +1,165 @@
+Notes every below record is bulit is scope app of MSIM
+
+Full configuration MSIM ui action authentication via fetching dynamic credential sys_id and profile sys_id, and check
+whether authentication is been updated in OAuth Credentials and updated the status whether authenication is successfully
+or failed
+
+UI action native script 
+function authenticateTeams() {
+    var record = g_form.getUniqueValue();
+    var azureAppClientId = "6b06b312-f271-478f-9614-e5dffd6a4da4";
+
+    // Fetch the dynamic credential sys_id and profile sys_id
+    var ga = new GlideAjax('MSIMTeamDynamicAuthentication');
+    ga.addParam('sysparm_name', 'getOAuthIds');
+    ga.addParam('sysparm_azureid', azureAppClientId);
+    ga.getXMLAnswer(function(response) {
+
+        var data = JSON.parse(response);
+        var credentialSysid = data.credSysId;
+        var profileSysid = data.profileSysId;
+
+        if (!credentialSysid || !profileSysid) {
+            g_form.addErrorMessage("Could not find matching OAuth Profile or Credential");
+            return;
+        }
+
+        var authUrl = '/oauth_initiator.do?oauth_requestor_context=oauth_2_0_credentials&oauth_requestor=' + credentialSysid + '&oauth_provider_profile=' + profileSysid + '&response_type=code';
+        g_navigation.openPopup(authUrl); // working	
+
+       // Calling script include to validate the Oauth status is successful or failed
+        var ga1 = new GlideAjax('MSIMTeamDynamicAuthentication');
+        ga1.addParam('sysparm_name', 'getoauthstatus');
+        ga1.addParam('sysparm_profile', profileSysid);
+        ga1.addParam('sysparm_record', record);
+        ga1.getXMLAnswer(function(answer) {
+            g_form.addInfoMessage("Teams authentication is in progress. Background verification scheduled.");
+        });
+
+    });
+}
+
+UI action workspace script
+function onClick(g_form) {
+	var record = g_form.getUniqueValue();
+    var azureAppClientId = "6b06b312-f271-478f-9614-e5dffd6a4da4";
+    var ga = new GlideAjax('sn_msi.MSIMTeamDynamicAuthentication');
+    ga.addParam('sysparm_name', 'getOAuthIds');
+    ga.addParam('sysparm_azureid', azureAppClientId);
+
+    ga.getXMLAnswer(function(response) {
+
+        var data = JSON.parse(response);
+        var credentialSysid = data.credSysId;
+        var profileSysid = data.profileSysId;
+
+        if (!credentialSysid || !profileSysid) {
+            g_form.addErrorMessage("Could not find matching OAuth Profile or Credential");
+            return;
+        }
+
+        var authUrl = '/oauth_initiator.do?oauth_requestor_context=oauth_2_0_credentials&oauth_requestor=' + credentialSysid + '&oauth_provider_profile=' + profileSysid + '&response_type=code';
+        open(authUrl);
+        
+        // Calling script include to validate the Oauth status is successful or failed
+        var ga1 = new GlideAjax('sn_msi.MSIMTeamDynamicAuthentication');
+        ga1.addParam('sysparm_name', 'getoauthstatus');
+        ga1.addParam('sysparm_profile', profileSysid);
+        ga1.addParam('sysparm_record', record);
+        ga1.getXMLAnswer(function(answer) {
+            g_form.addInfoMessage("Teams authentication is in progress. Background verification scheduled.");
+        });
+
+    });
+    // g_form.submit(g_form.getActionName()); // this how to call in workspace
+}
+// reason below script is there ,if comments or remove the ui action is not executing, as this is not expected behaviour
+if (typeof window == 'undefined') {
+    addworknotesworkspace();
+}
+function addworknotesworkspace() {}
+
+// script include client callable
+// to fetch the dynamic the credential and profile sys_id
+getOAuthIds: function() {
+        var azureId = this.getParameter('sysparm_azureid');
+        var result = {};
+
+        var profileGR = new GlideRecord("oauth_entity_profile");
+        profileGR.addQuery("oauth_entity.client_id", azureId);
+        profileGR.query();
+        if (profileGR.next()) {
+            result.profileSysId = profileGR.sys_id + '';
+        }
+
+        var credGR = new GlideRecord("oauth_2_0_credentials");
+        credGR.addQuery("oauth_entity_profile", result.profileSysId);
+        credGR.query();
+        if (credGR.next()) {
+            result.credSysId = credGR.getUniqueValue();
+        }
+        return JSON.stringify(result);
+    },
+
+    // to get oauth status and use of eventscheduled to run the script after few minutes
+    getoauthstatus: function() {
+        var profilesysID = this.getParameter('sysparm_profile');
+        var recordId = this.getParameter('sysparm_record');
+        var loggedUser = {};
+        loggedUser.userid = gs.getUserName();
+        loggedUser.name = gs.getUserDisplayName();
+        var logged = JSON.stringify(loggedUser);
+
+        // need to send object of record as msiGR
+        var msiGR = new GlideRecord("sn_msi_incident");
+        if (msiGR.get(recordId)) {
+		    // 2. Set future time for 240 seconds , to send as parameter in eventscheduled to tell when to executes the 
+        event 
+			  var futureTime = new GlideDateTime();
+        futureTime.addSeconds(240); 
+
+        // 3. Queue the event, to fired the event after 240 sec, sysevent.list to check the event 
+        is been scheduled to trigger at what time
+        // gs.eventQueueScheduled(eventName, record, parm1, parm2, expiration);
+        gs.eventQueueScheduled('sn_msi.MSIM.Teams.OAuth.Requested', msiGR, profilesysID, logged, futureTime);
+        }
+        return "queued"; // Optional: returns a status back to the client if needed
+    },
+
+// Event registry :-create one for table as sn_msi_incident
+
+Script action
+// select same event registry in event name so when event fired then action script trigger
+// current is obj mean the msiGR 
+if (current && current.isValidRecord()) {// not required but add as to check
+    var profileID = event.parm1;
+    var loggedUser = event.parm2;
+    var logged = JSON.parse(loggedUser);
+    
+    var oauthGR = new GlideRecord("oauth_credential");
+    oauthGR.addQuery("oauth_requestor_profile.oauth_entity_profile", profileID);
+    oauthGR.addEncodedQuery('type=refresh_token');
+    oauthGR.query();
+
+    if (oauthGR.next()) {
+        //get the updated time 
+        var updatedOn = new GlideDateTime(oauthGR.getValue('sys_updated_on'));
+        // get the current time
+        var now = new GlideDateTime();
+        // to check how long seconds ago for at 1:00:00 AM is updated time and current time is 1:01:10 so
+        diffsecinds will be 70 sec, means updated just 01 minutes and 10 second ago
+        var diffSeconds = (now.getNumericValue() - updatedOn.getNumericValue()) / 1000;
+        
+       //to check if update is before 7 minutes and updated by same as logged user
+        if (diffSeconds <= 420 && oauthGR.sys_updated_by == logged.userid) {
+            current.work_notes = "MSI originator is " + logged.name;
+            current.update();
+        } else {
+            current.work_notes = "Sorry, Authentication Failed please try again - Click the Open MSI Workspace button";
+            current.update();
+        }
+    } else {
+        current.work_notes = "MSI originator failed: No refresh token found.";
+        current.update();
+    }
+}
